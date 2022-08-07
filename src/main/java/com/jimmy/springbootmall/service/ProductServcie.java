@@ -5,5 +5,6 @@ import com.jimmy.springbootmall.model.Product;
 
 public interface ProductServcie {
     Product getProductById(Integer productId);
-    Integer createPeoduct(ProductRequest productRequest);
+    Integer createProduct(ProductRequest productRequest);
+    void updateProduct(Integer productId , ProductRequest productRequest);
 }
