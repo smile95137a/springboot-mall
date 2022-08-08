@@ -5,6 +5,7 @@ import com.jimmy.springbootmall.dto.ProductQueryParams;
 import com.jimmy.springbootmall.dto.ProductRequest;
 import com.jimmy.springbootmall.model.Product;
 import com.jimmy.springbootmall.service.ProductServcie;
+import com.jimmy.springbootmall.util.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class ProductController {
     private ProductServcie productServcie;
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getProducts(@RequestParam(required = false) ProductCategory category , @RequestParam(required = false) String search,  //查詢條件Filtering
+    public ResponseEntity<Page<Product>> getProducts(@RequestParam(required = false) ProductCategory category , @RequestParam(required = false) String search,  //查詢條件Filtering
                                                      //排序sorting
                                                      @RequestParam (defaultValue = "created_date") String orderBy , @RequestParam(defaultValue = "desc") String sort,
                                                      //分頁 Pagination
@@ -37,10 +38,18 @@ public class ProductController {
         productQueryParams.setLimit(limit);
         productQueryParams.setOffset(offset);
 
-
+        //取得product list
         List<Product> productsList = productServcie.getProducts(productQueryParams);
+        //取得product 總數
+        Integer total = productServcie.countProduct(productQueryParams);
+        //分頁
+        Page<Product> page = new Page<>();
+        page.setLimit(limit);
+        page.setOffset(offset);
+        page.setTotal(total);
+        page.setResults(productsList);
 
-        return ResponseEntity.status(HttpStatus.OK).body(productsList);
+        return ResponseEntity.status(HttpStatus.OK).body(page);
     }
 
     @GetMapping("/products/{productId}")
