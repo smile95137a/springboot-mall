@@ -8,22 +8,35 @@ import com.jimmy.springbootmall.service.ProductServcie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
+@Validated  //@Max @Min 才能生效
 @RestController
 public class ProductController {
     @Autowired
     private ProductServcie productServcie;
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getProducts(@RequestParam(required = false) ProductCategory category , @RequestParam(required = false) String search){
+    public ResponseEntity<List<Product>> getProducts(@RequestParam(required = false) ProductCategory category , @RequestParam(required = false) String search,  //查詢條件Filtering
+                                                     //排序sorting
+                                                     @RequestParam (defaultValue = "created_date") String orderBy , @RequestParam(defaultValue = "desc") String sort,
+                                                     //分頁 Pagination
+                                                     @RequestParam(defaultValue = "5") @Max(1000)@Min(0) Integer limit, @RequestParam(defaultValue = "0") @Min(0) Integer offset){
 
         ProductQueryParams productQueryParams = new ProductQueryParams();
         productQueryParams.setCategory(category);
         productQueryParams.setSearch(search);
+        productQueryParams.setOrderBy(orderBy);
+        productQueryParams.setSort(sort);
+        productQueryParams.setLimit(limit);
+        productQueryParams.setOffset(offset);
+
 
         List<Product> productsList = productServcie.getProducts(productQueryParams);
 
