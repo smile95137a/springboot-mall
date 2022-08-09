@@ -79,7 +79,7 @@ public class ProductController {
         Product product = productServcie.getProductById(productId);
 
         if(product == null){
-            ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         //修改商品的數據
         productServcie.updateProduct(productId,productRequest);
