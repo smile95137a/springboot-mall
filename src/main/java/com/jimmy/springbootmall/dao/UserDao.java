@@ -1,5 +1,6 @@
 package com.jimmy.springbootmall.dao;
 
+import com.jimmy.springbootmall.dto.UserLogin;
 import com.jimmy.springbootmall.dto.UserRegisterRequest;
 import com.jimmy.springbootmall.model.User;
 
