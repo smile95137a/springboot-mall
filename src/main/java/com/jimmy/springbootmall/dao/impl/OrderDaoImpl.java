@@ -1,10 +1,12 @@
 package com.jimmy.springbootmall.dao.impl;
 
 import com.jimmy.springbootmall.dao.OrderDao;
+import com.jimmy.springbootmall.dto.OrderQueryParams;
 import com.jimmy.springbootmall.model.Order;
 import com.jimmy.springbootmall.model.OrderItem;
 import com.jimmy.springbootmall.rowmapper.OrderItemRowMapper;
 import com.jimmy.springbootmall.rowmapper.OrderRowMapper;
+import com.sun.org.apache.xpath.internal.operations.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -21,6 +23,42 @@ import java.util.Map;
 public class OrderDaoImpl implements OrderDao {
         @Autowired
         private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+        @Override
+        public Integer countOrder(OrderQueryParams orderQueryParams) {
+                String sql = "SELECT count(*) FROM `order` WHERE 1=1";
+
+                Map<String , Object> map = new HashMap<>();
+
+                //查詢條件
+                sql = addFliteringSql(sql,map,orderQueryParams);
+
+                Integer total = namedParameterJdbcTemplate.queryForObject(sql , map , Integer.class);
+
+                return total;
+        }
+
+        @Override
+        public List<Order> getOrders(OrderQueryParams orderQueryParams) {
+                String sql = "SELECT order_id , user_id , total_amount , created_date  , last_modified_date FROM `order` WHERE  1=1";
+
+                Map<String , Object> map = new HashMap<>();
+
+                //查詢條件
+                sql = addFliteringSql(sql,map,orderQueryParams);
+
+                //排序
+                sql = sql + " ORDER BY created_date DESC";
+
+                //分頁
+                sql = sql + " LIMIT :limit OFFSET :offset";
+                map.put("limit",orderQueryParams.getLimit());
+                map.put("offset",orderQueryParams.getOffset());
+
+                List<Order> orderList = namedParameterJdbcTemplate.query(sql , map , new OrderRowMapper());
+
+                return orderList;
+        }
 
         @Override
         public Order getOrderById(Integer orderId) {
@@ -111,5 +149,14 @@ public class OrderDaoImpl implements OrderDao {
 
                 namedParameterJdbcTemplate.batchUpdate(sql,mapSqlParameterSources);
 
+        }
+
+        private String addFliteringSql(String sql , Map<String , Object> map , OrderQueryParams orderQueryParams){
+                if(orderQueryParams.getUserId() != null){
+                        sql = sql + " AND user_id = :userId";
+                        map.put("userId" , orderQueryParams.getUserId());
+                }
+
+                return sql;
         }
 }
